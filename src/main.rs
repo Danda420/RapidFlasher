@@ -86,8 +86,9 @@ fn main() -> Result<()> {
                 ui.ui_print(&msg)?;
             },
             "show_progress" => {
-                let val = args.get(0).cloned().unwrap_or_else(|| "0".to_string());
-                ui.show_progress(&val)?;
+                let fraction = args.get(0).cloned().unwrap_or_else(|| "0.0".to_string());
+                let seconds = args.get(1).cloned().unwrap_or_else(|| "0".to_string());
+                ui.show_progress(&fraction, &seconds)?;
             },
             "verify_device" => {
                 let devices = args.get(0).context("verify_device missing args")?;

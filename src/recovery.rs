@@ -20,11 +20,13 @@ impl RecoveryUI {
         Ok(())
     }
 
-    pub fn show_progress(&mut self, val_str: &str) -> Result<()> {
-        let val: f32 = val_str.parse().unwrap_or(0.0);
-        let adjusted = val + 10.0;
-        writeln!(self.pipe, "progress 1 {:.0}", adjusted)?;
+    pub fn show_progress(&mut self, fraction_str: &str, seconds_str: &str) -> Result<()> {
+        let fraction: f32 = fraction_str.parse().unwrap_or(0.0);
+        let seconds: i32 = seconds_str.parse().unwrap_or(0);
+    
+        writeln!(self.pipe, "progress {} {}", fraction, seconds)?;
         self.pipe.flush()?;
+        
         Ok(())
     }
 }

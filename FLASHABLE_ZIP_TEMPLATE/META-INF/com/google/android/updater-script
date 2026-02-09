@@ -40,15 +40,18 @@ ui_print " "
 verify_device "alioth,aliothin"
 
 ui_print " "
+show_progress "0.7" "40"
 ui_print "Flashing partitions..."
 package_flash_partition "0" "alioth" "/dev/block/bootdevice/by-name/super"
 
 ui_print " "
 ui_print "Flashing oem cust..."
+show_progress "0.9" "8"
 package_flash_partition "0" "oemports10t/oem_cust" "/dev/block/bootdevice/by-name/cust"
 
 ui_print " "
 ui_print "Flashing images..."
+show_progress "1.0" "2"
 package_extract_file "images/boot.img" "/dev/block/bootdevice/by-name/boot_a"
 package_extract_file "images/dtbo.img" "/dev/block/bootdevice/by-name/dtbo_a"
 package_extract_file "images/vbmeta.img" "/dev/block/bootdevice/by-name/vbmeta_a"

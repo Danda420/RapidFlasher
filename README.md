@@ -22,21 +22,21 @@ Flashable.zip
                 ├── update-binary      <-- This compiled binary
                 └── updater-script     <-- Your installation instructions
 ````
-or you can just check/use `FLASHABLE ZIP TEMPLATE` folder.
+or you can just check/use `FLASHABLE_ZIP_TEMPLATE` folder.
 
 ### Supported Commands ###
 Below is the list of commands you can use in your updater-script.
 
-| Command                   | Arguments              | Description
-|---------------------------|------------------------|--------------------------------------------------------------------------------------------------------------|
+| Command                     | Arguments                | Description
+|-----------------------------|--------------------------|--------------------------------------------------------------------------------------------------------------|
 | `ui_print`                  | `<message>`              | Prints a message to the recovery screen.                                                                     |
-| `show_progress`             | `<value>`                | Updates the recovery progress bar.                                                                           |
+| `show_progress`             | `<fraction> <secs>`      | Updates the recovery progress bar.                                                                           |
 | `verify_device`             | `device1,device2,...`    | Aborts installation if the device model (`ro.product.device` or `ro.build.product`) does not match the list. |
 | `package_extract_file`      | `<file> <dest_path>`     | Extracts a single file from the ZIP to the system.                                                           |
 | `package_flash_partition`   | `<method> <file> <dest>` | Flashes an image to a partition. See Flash Methods below.                                                    |
 | `package_extract_targz`     | `<file> <dest_dir>`      | Extracts a GZIP-compressed tar archive from the ZIP to a directory.                                          |
 | `update_dynamic_partitions` | `<op_list_file>`         | Modifies logical partitions based on a config file inside the ZIP.                                           |
-| `set_slot`                  | `<slot>` *(0/1)*           | Sets the active boot slot using bootctl.                                                                     |
+| `set_slot`                  | `<slot>` *(0/1)*         | Sets the active boot slot using bootctl.                                                                     |
 | `disable_vbmeta `           | *(none)*                 | Disables AVB verification (verity/verification) using avbctl.                                                |
 
 ### Flash Methods ###
