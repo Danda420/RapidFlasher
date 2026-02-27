@@ -37,7 +37,8 @@ Below is the list of commands you can use in your updater-script.
 | `package_extract_targz`     | `<file> <dest_dir>`      | Extracts a GZIP-compressed tar archive from the ZIP to a directory.                                          |
 | `update_dynamic_partitions` | `<op_list_file>`         | Modifies logical partitions based on a config file inside the ZIP.                                           |
 | `set_slot`                  | `<slot>` *(0/1)*         | Sets the active boot slot using bootctl.                                                                     |
-| `disable_vbmeta `           | *(none)*                 | Disables AVB verification (verity/verification) using avbctl.                                                |
+| `disable_vbmeta`            | *(none)*                 | Disables AVB verification (verity/verification) using avbctl.                                                |
+| `run_program`               | `<cmd/file> [args...]`   | Executes a script or binary. Automatically applies proper file perm (`chmod 755`) to file before running.    |
 
 ### Flash Methods ###
 When using package_flash_partition, the first argument determines how the source file is handled:

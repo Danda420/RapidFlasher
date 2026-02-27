@@ -124,6 +124,9 @@ fn main() -> Result<()> {
                 let slot = args.get(0).cloned().unwrap_or_else(|| "0".to_string());
                 set_slot(&mut ui, &slot)?;
             },
+            "run_program" => {
+                crate::func::run_program(&mut ui, &args)?;
+            },
             _ => { }
         }
     }

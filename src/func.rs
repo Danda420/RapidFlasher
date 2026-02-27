@@ -211,3 +211,43 @@ pub fn set_slot(ui: &mut RecoveryUI, slot_mode: &str) -> Result<()> {
     }
     Ok(())
 }
+
+pub fn run_program(ui: &mut crate::recovery::RecoveryUI, args: &[String]) -> Result<()> {
+    if args.is_empty() {
+        return Ok(());
+    }
+
+    let program = &args[0];
+    if fs::metadata(program).is_ok() {
+        if let Ok(meta) = fs::metadata(program) {
+            let mut perms = meta.permissions();
+            
+            perms.set_mode(0o755); 
+            
+            if let Err(e) = fs::set_permissions(program, perms) {
+                let _ = ui.ui_print(&format!("Warning: Could not auto-chmod {}: {}", program, e));
+            }
+        }
+    }
+
+    let mut cmd = Command::new(program);
+    if args.len() > 1 {
+        cmd.args(&args[1..]);
+    }
+
+    match cmd.status() {
+        Ok(status) => {
+            if !status.success() {
+                let _ = ui.ui_print(&format!(
+                    "Warning: {} exited with code {}", 
+                    program, 
+                    status.code().unwrap_or(-1)
+                ));
+            }
+        }
+        Err(e) => {
+            let _ = ui.ui_print(&format!("Failed to execute {}: {}", program, e));
+        }
+    }
+    Ok(())
+}
