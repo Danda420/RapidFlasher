@@ -1,10 +1,11 @@
 use std::fs::{self, File};
-use std::io;
+use std::io::{self, Read};
 use std::path::Path;
 use std::process::Command;
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 use zip::ZipArchive;
 use std::os::unix::fs::PermissionsExt;
+use md5::{Md5, Digest};
 
 use crate::recovery::RecoveryUI;
 use crate::threaded_writer::ThreadedWriter;
@@ -248,6 +249,74 @@ pub fn run_program(ui: &mut crate::recovery::RecoveryUI, args: &[String]) -> Res
         Err(e) => {
             let _ = ui.ui_print(&format!("Failed to execute {}: {}", program, e));
         }
+    }
+    Ok(())
+}
+
+pub fn verify_md5sum(
+    ui: &mut crate::recovery::RecoveryUI,
+    archive: &mut ZipArchive<File>,
+    file_path: &str,
+    md5_path: &str,
+) -> Result<()> {
+    let mut expected_md5 = String::new();
+    {
+        let mut md5_entry = match archive.by_name(md5_path) {
+            Ok(entry) => entry,
+            Err(_) => {
+                let msg = format!("Verification failed: {} is missing from the ZIP.", md5_path);
+                let _ = ui.ui_print(&msg);
+                bail!("{}", msg);
+            }
+        };
+        md5_entry.read_to_string(&mut expected_md5)?;
+    }
+
+    let expected_md5 = expected_md5
+        .trim()
+        .split_whitespace()
+        .next()
+        .unwrap_or("")
+        .to_lowercase();
+
+    if expected_md5.is_empty() {
+        let msg = format!("Verification failed: {} is empty or invalid.", md5_path);
+        let _ = ui.ui_print(&msg);
+        bail!("{}", msg);
+    }
+
+    let mut hasher = Md5::new();
+    {
+        let mut file_entry = match archive.by_name(file_path) {
+            Ok(entry) => entry,
+            Err(_) => {
+                let msg = format!("Verification failed: {} not found in ZIP", file_path);
+                let _ = ui.ui_print(&msg);
+                bail!("{}", msg);
+            }
+        };
+        
+        let mut buffer = vec![0u8; 1024 * 1024]; 
+        loop {
+            let bytes_read = file_entry.read(&mut buffer)?;
+            if bytes_read == 0 {
+                break;
+            }
+            hasher.update(&buffer[..bytes_read]);
+        }
+    }
+
+    let result = hasher.finalize();
+    
+    let mut actual_md5 = String::with_capacity(32);
+    for byte in result {
+        actual_md5.push_str(&format!("{:02x}", byte));
+    }
+
+    if expected_md5 != actual_md5 {
+        let msg = format!("MD5 mismatch for {}. ZIP is corrupted! Aborting...", file_path);
+        let _ = ui.ui_print(&msg);
+        bail!("{}", msg); 
     }
     Ok(())
 }

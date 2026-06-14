@@ -94,6 +94,13 @@ fn main() -> Result<()> {
                 let devices = args.get(0).context("verify_device missing args")?;
                 verify_device(&mut ui, devices)?;
             },
+            "verify_md5sum" => {
+                if args.len() < 2 { 
+                    ui.ui_print("Error: verify_md5sum requires <file> <md5_file>")?;
+                    continue; 
+                }
+                crate::func::verify_md5sum(&mut ui, &mut archive, &args[0], &args[1])?;
+            },
             "package_extract_file" => {
                 if args.len() < 2 { continue; }
                 package_extract_file(&mut archive, &args[0], &args[1])?;

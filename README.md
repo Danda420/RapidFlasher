@@ -32,6 +32,7 @@ Below is the list of commands you can use in your updater-script.
 | `ui_print`                  | `<message>`              | Prints a message to the recovery screen.                                                                     |
 | `show_progress`             | `<fraction> <secs>`      | Updates the recovery progress bar.                                                                           |
 | `verify_device`             | `device1,device2,...`    | Aborts installation if the device model (`ro.product.device` or `ro.build.product`) does not match the list. |
+| `verify_md5sum`             | `<file> <md5sumfile>`    | Verifies the MD5 of a file based on a file containing the correct md5sum. Aborts flashing if it doesn't match|
 | `package_extract_file`      | `<file> <dest_path>`     | Extracts a single file from the ZIP to the system.                                                           |
 | `package_flash_partition`   | `<method> <file> <dest>` | Flashes an image to a partition. See Flash Methods below.                                                    |
 | `package_extract_targz`     | `<file> <dest_dir>`      | Extracts a GZIP-compressed tar archive from the ZIP to a directory.                                          |
@@ -55,6 +56,20 @@ update_dynamic_partitions "dynamic_partitions_op_list"
 for dynamic_partitions_op_list format, refer to this [README](op_list.md)
 
 Note: This feature requires lpdump, lpmake, and lptools binaries to be present in META-INF/bin/lptools/ inside the ZIP.
+
+### MD5 Verification ###
+The `verify_md5sum` command allows you to verify the integrity of your files directly from the ZIP into memory (zero disk I/O) before flashing anything. This uses a "fail-fast" approach: if a file is corrupted, the installation aborts immediately, preventing a soft-bricked device.
+
+To use this, place a standard text file containing the expected MD5 hash alongside your target file inside the ZIP.
+**Usage in `updater-script`:**
+It is highly recommended to stack all verification commands at the absolute top of your script, before any partition-altering commands execute.
+
+````shell
+verify_md5sum "images/boot.img" "images/boot.img.md5sum"
+verify_md5sum "super.img.zst" "super.img.zst.md5sum"
+
+# ... proceed with flashing ...
+````
 
 ### Example (package_flash_partition package_extract_file package_extract_targz) ###
 ```` shell
